@@ -1,0 +1,10 @@
+dataset/
+model/
+__pycache__/
+*.h5
+*.json
+*.db
+27-3-26 codes.txt
+asl_signs.pdf
+previous codes.txt
+Translation_Export.txt
