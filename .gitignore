@@ -1,10 +1,9 @@
 dataset/
-model/
 __pycache__/
-*.h5
-*.json
+*.pyc
+venv/
+hand_landmarks.csv
 *.db
-27-3-26 codes.txt
+session.json
+*.txt
 asl_signs.pdf
-previous codes.txt
-Translation_Export.txt

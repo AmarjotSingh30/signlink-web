@@ -116,10 +116,10 @@ class LearnModule:
         
         header_frame = tk.Frame(self.root, bg=HEADER_BG, height=50)
         header_frame.place(relx=0, rely=0, relwidth=1)
-        tk.Label(header_frame, text="INTERACTIVE ASL CURRICULUM", 
+        tk.Label(header_frame, text="LEARN SIGN LANGUAGE", 
                  font=("Segoe UI", 16, "bold"), bg=HEADER_BG, fg=ACCENT_BLUE).place(x=20, y=10)
                  
-        self.progress_var = tk.StringVar(value=f"Matrix Sequence: {self.target_letter} ({self.current_index + 1}/{self.total_modules})")
+        self.progress_var = tk.StringVar(value=f"Signs: {self.target_letter} ({self.current_index + 1}/{self.total_modules})")
         self.lbl_progress = tk.Label(header_frame, textvariable=self.progress_var, font=("Segoe UI", 14, "bold"), bg=HEADER_BG, fg=TEXT_PRIMARY)
         self.lbl_progress.place(relx=0.75, y=10)
 
@@ -132,14 +132,14 @@ class LearnModule:
 
         skel_frame = tk.Frame(self.root, bg=CARD_BG, highlightbackground=BORDER_COLOR, highlightthickness=1)
         skel_frame.place(relx=0.345, rely=0.09, relwidth=0.31, relheight=0.48)
-        tk.Label(skel_frame, text="2. Topological Analytics", font=("Segoe UI", 11, "bold"), bg=CARD_BG, fg=TEXT_PRIMARY).place(x=15, y=10)
+        tk.Label(skel_frame, text="Handlandmarks Preview", font=("Segoe UI", 11, "bold"), bg=CARD_BG, fg=TEXT_PRIMARY).place(x=15, y=10)
         
         self.panel2 = tk.Label(skel_frame, bg="#000000") 
         self.panel2.place(relx=0.05, rely=0.15, relwidth=0.90, relheight=0.80) 
         
         ref_frame = tk.Frame(self.root, bg=CARD_BG, highlightbackground=BORDER_COLOR, highlightthickness=1)
         ref_frame.place(relx=0.67, rely=0.09, relwidth=0.31, relheight=0.48)
-        tk.Label(ref_frame, text="3. Target Ground Truth", font=("Segoe UI", 11, "bold"), bg=CARD_BG, fg=TEXT_PRIMARY).place(x=15, y=10)
+        tk.Label(ref_frame, text="Sign", font=("Segoe UI", 11, "bold"), bg=CARD_BG, fg=TEXT_PRIMARY).place(x=15, y=10)
         
         self.target_var = tk.StringVar(value=f"{self.target_letter}")
         tk.Label(ref_frame, textvariable=self.target_var, font=("Segoe UI", 32, "bold"), bg=CARD_BG, fg=BTN_SUCCESS).place(relx=0.42, y=40)
@@ -152,13 +152,13 @@ class LearnModule:
         
         btn_style = {"font": ("Segoe UI", 10, "bold"), "fg": "white", "relief": "flat", "cursor": "hand2"}
         
-        self.btn_prev = tk.Button(btn_container, text="◀ Previous Matrix", bg="#475569", activebackground="#334155", command=self.prev_module, **btn_style)
+        self.btn_prev = tk.Button(btn_container, text="◀ Previous Sign", bg="#475569", activebackground="#334155", command=self.prev_module, **btn_style)
         self.btn_prev.pack(side=tk.LEFT, expand=True, fill=tk.BOTH, padx=5)
 
-        self.btn_next = tk.Button(btn_container, text="Skip / Next Matrix ▶", bg=ACCENT_BLUE, activebackground="#1d4ed8", command=self.next_module, **btn_style)
+        self.btn_next = tk.Button(btn_container, text="Skip / Next Sign ▶", bg=ACCENT_BLUE, activebackground="#1d4ed8", command=self.next_module, **btn_style)
         self.btn_next.pack(side=tk.LEFT, expand=True, fill=tk.BOTH, padx=5)
 
-        self.btn_quit = tk.Button(btn_container, text="Exit Training Module", bg=BTN_DANGER, activebackground="#991b1b", command=self.destructor, **btn_style)
+        self.btn_quit = tk.Button(btn_container, text="Exit", bg=BTN_DANGER, activebackground="#991b1b", command=self.destructor, **btn_style)
         self.btn_quit.pack(side=tk.LEFT, expand=True, fill=tk.BOTH, padx=5)
 
         out_frame = tk.Frame(self.root, bg=CARD_BG, highlightbackground=BORDER_COLOR, highlightthickness=1)
@@ -233,7 +233,7 @@ class LearnModule:
         self.target_letter = self.curriculum[self.current_index]
         self.target_var.set(f"{self.target_letter}")
         
-        self.progress_var.set(f"Matrix Sequence: {self.target_letter} ({self.current_index + 1}/{self.total_modules})")
+        self.progress_var.set(f"Current Sign: {self.target_letter} ({self.current_index + 1}/{self.total_modules})")
         
         self.hold_frames = 0
         self.hold_progress['value'] = 0

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignLink - Universal Web Ecosystem</title>
+    <style>
+        body { background-color: #0f172a; color: #ffffff; font-family: "Segoe UI", sans-serif; margin: 0; }
+        header { background-color: #020617; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+        .logo { font-size: 18px; font-weight: bold; color: #2563eb; text-transform: uppercase; }
+        
+        .nav-tabs button { background-color: #1e293b; color: #94a3b8; border: 1px solid #334155; padding: 8px 16px; margin-left: 8px; cursor: pointer; border-radius: 4px; font-weight: bold; transition: 0.2s; }
+        .nav-tabs button:hover { background-color: #334155; color: white; }
+        .nav-tabs button.active { background-color: #2563eb; color: white; border-color: #2563eb; }
+
+        .main-content { display: flex; justify-content: center; flex-wrap: wrap; padding: 25px; gap: 20px; }
+        
+        .card { background-color: #1e293b; border: 1px solid #334155; padding: 15px; border-radius: 6px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); }
+        .card-title { font-weight: bold; margin-bottom: 12px; font-size: 13px; color: #f8fafc; }
+        .video-box { background-color: black; border-radius: 4px; display: block; width: 400px; height: 300px; object-fit: cover; }
+        
+        .console-card { max-width: 840px; margin: 0 auto 30px auto; background-color: #1e293b; border: 1px solid #334155; padding: 20px; border-radius: 6px; }
+        
+        .action-deck { margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px; }
+        .btn { padding: 9px 18px; border: none; color: white; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 12px; }
+        .btn-blue { background-color: #2563eb; }
+        .btn-warn { background-color: #d97706; }
+        .btn-danger { background-color: #dc2626; }
+        .btn-success { background-color: #059669; }
+        .btn-gray { background-color: #475569; }
+        
+        .text-box { background-color: #020617; color: #10b981; padding: 15px; font-family: Consolas, monospace; font-size: 18px; min-height: 90px; border: 1px solid #334155; margin-top: 15px; border-radius: 4px; word-wrap: break-word; }
+        
+        .progress-container { width: 100%; background-color: #020617; border-radius: 4px; margin-top: 15px; border: 1px solid #334155; overflow: hidden; height: 12px; }
+        .progress-bar { height: 100%; background-color: #2563eb; width: 0%; transition: width 0.2s; }
+        .terminal { background-color: #020617; color: #94a3b8; padding: 15px; font-family: Consolas, monospace; font-size: 14px; min-height: 60px; border: 1px solid #334155; margin-top: 10px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">SIGNLINK ECOSYSTEM</div>
+        <div class="nav-tabs">
+            <button id="tab-interpreter" class="active" onclick="switchMode('INTERPRETER')">Interpreter</button>
+            <button id="tab-learn" onclick="switchMode('LEARN')">Learning Curriculum</button>
+        </div>
+    </header>
+    
+    <!-- DUAL VIDEO PANELS -->
+    <div class="main-content">
+        <div class="card">
+            <div class="card-title">1. Live Video Feed (Client Camera)</div>
+            <video id="clientVideo" class="video-box" autoplay playsinline style="transform: scaleX(-1);"></video>
+            <canvas id="hiddenCanvas" width="400" height="300" style="display: none;"></canvas>
+        </div>
+        <div class="card">
+            <div class="card-title">2. Handlandmarks Preview (MediaPipe 21-Points)</div>
+            <img id="skeletonPreview" class="video-box" alt="Skeleton View">
+        </div>
+    </div>
+    
+    <!-- MODULE 1: INTERPRETER CONSOLE -->
+    <div class="console-card" id="interpreter-module">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: bold; font-size: 15px;">Translation Console</span>
+            <span style="font-size: 14px; color: #94a3b8;">Detected Sign: <strong id="prediction" style="color: #059669; font-size: 24px; margin-left: 8px;">--</strong></span>
+        </div>
+        
+        <div class="action-deck">
+            <button class="btn btn-blue" onclick="sendAction('/add_space')">Space/Speak</button>
+            <button class="btn btn-warn" onclick="sendAction('/backspace')">Backspace</button>
+            <button class="btn btn-danger" onclick="sendAction('/clear_sentence')">Clear</button>
+            <button class="btn btn-success" onclick="exportData()">Export & Save</button>
+        </div>
+
+        <div class="text-box" id="sentence_box"></div>
+    </div>
+
+    <!-- MODULE 2: LEARNING CURRICULUM -->
+    <div class="console-card" id="learn-module" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: bold; font-size: 15px;">Diagnostic Log</span>
+            <span style="font-size: 14px; color: #94a3b8;">Current Sign: <strong id="target-letter" style="color: #2563eb; font-size: 24px; margin-left: 8px;">A</strong> <span id="progress-text"></span></span>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="hold-progress"></div>
+        </div>
+
+        <div class="terminal" id="diagnostic-log">[SYSTEM] Cloud AI Diagnostic Engine Ready...</div>
+
+        <div class="action-deck" style="margin-top: 15px;">
+            <button class="btn btn-gray" onclick="navigateLearn('prev')">◀ Previous Sign</button>
+            <button class="btn btn-blue" onclick="navigateLearn('next')">Skip / Next Sign ▶</button>
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('clientVideo');
+        const canvas = document.getElementById('hiddenCanvas');
+        const ctx = canvas.getContext('2d');
+        const skeletonImg = document.getElementById('skeletonPreview');
+        let currentMode = "INTERPRETER";
+        let isProcessing = false;
+
+        // 1. Request Browser Camera (Mobile & Desktop compatible)
+        navigator.mediaDevices.getUserMedia({
+            video: { width: { ideal: 400 }, height: { ideal: 300 }, facingMode: "user" }
+        })
+        .then(stream => { video.srcObject = stream; })
+        .catch(err => {
+            alert("Camera permission is required to use SignLink.");
+            console.error(err);
+        });
+
+        // 2. High-Frequency Frame Pipeline
+        setInterval(() => {
+            if (video.readyState === video.HAVE_ENOUGH_DATA && !isProcessing) {
+                isProcessing = true;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const frameData = canvas.toDataURL('image/jpeg', 0.6);
+
+                fetch('/process_frame', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: frameData })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        skeletonImg.src = data.skeleton;
+                        if (currentMode === "INTERPRETER") {
+                            document.getElementById('prediction').innerText = data.prediction;
+                            document.getElementById('sentence_box').innerText = data.sentence;
+                        } else {
+                            document.getElementById('target-letter').innerText = data.target_letter;
+                            document.getElementById('progress-text').innerText = data.progress_text;
+                            document.getElementById('hold-progress').style.width = data.progress_pct + "%";
+                            
+                            const logEl = document.getElementById('diagnostic-log');
+                            logEl.innerText = data.diagnostic_log;
+                            if (data.diagnostic_log.includes("[ERROR]")) logEl.style.color = "#ef4444";
+                            else if (data.diagnostic_log.includes("[SUCCESS]")) logEl.style.color = "#10b981";
+                            else if (data.diagnostic_log.includes("[WARNING]")) logEl.style.color = "#f59e0b";
+                            else logEl.style.color = "#94a3b8";
+                        }
+                    }
+                })
+                .catch(err => console.error(err))
+                .finally(() => { isProcessing = false; });
+            }
+        }, 120);
+
+        function switchMode(mode) {
+            currentMode = mode;
+            document.getElementById('tab-interpreter').classList.toggle('active', mode === 'INTERPRETER');
+            document.getElementById('tab-learn').classList.toggle('active', mode === 'LEARN');
+            document.getElementById('interpreter-module').style.display = mode === 'INTERPRETER' ? 'block' : 'none';
+            document.getElementById('learn-module').style.display = mode === 'LEARN' ? 'block' : 'none';
+
+            fetch('/switch_mode', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mode: mode })
+            });
+        }
+
+        function sendAction(endpoint) {
+            fetch(endpoint, { method: 'POST' });
+        }
+
+        function navigateLearn(direction) {
+            fetch('/navigate_learn', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ direction: direction })
+            });
+        }
+
+        function exportData() {
+            const text = document.getElementById('sentence_box').innerText;
+            if (!text.trim()) {
+                alert("No translation data available to export.");
+                return;
+            }
+            const blob = new Blob([text], { type: 'text/plain' });
+            const anchor = document.createElement('a');
+            anchor.download = "SignLink_Export.txt";
+            anchor.href = window.URL.createObjectURL(blob);
+            anchor.click();
+        }
+    </script>
+</body>
+</html>

@@ -97,7 +97,7 @@ class Application:
         
         header_frame = tk.Frame(self.root, bg=self.HEADER_BG, height=50)
         header_frame.place(relx=0, rely=0, relwidth=1)
-        tk.Label(header_frame, text="REAL-TIME SIGN LANGUAGE INTERPRETER", 
+        tk.Label(header_frame, text="SIGN LANGUAGE INTERPRETER", 
                  font=("Segoe UI", 16, "bold"), bg=self.HEADER_BG, fg=self.ACCENT_BLUE).place(x=20, y=10)
 
         cam_frame = tk.Frame(self.root, bg=self.CARD_BG, highlightbackground=self.BORDER_COLOR, highlightthickness=1)
