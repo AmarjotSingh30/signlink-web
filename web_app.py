@@ -5,7 +5,13 @@ import json
 import mediapipe as mp
 import numpy as np
 from flask import Flask, jsonify, render_template, request
-from tflite_runtime.interpreter import Interpreter
+# Try importing the lightweight cloud engine first. 
+# If it fails (like on your Windows machine), fall back to standard TensorFlow.
+try:
+    from tflite_runtime.interpreter import Interpreter
+except ImportError:
+    import tensorflow as tf
+    Interpreter = tf.lite.Interpreter
 
 app = Flask(__name__)
 
