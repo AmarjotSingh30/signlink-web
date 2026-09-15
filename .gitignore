@@ -6,4 +6,5 @@ hand_landmarks.csv
 *.db
 session.json
 *.txt
+!requirements.txt
 asl_signs.pdf
