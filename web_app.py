@@ -1,20 +1,24 @@
+# --- REPLACED TOP SECTION ---
 import base64
 import cv2
 import json
 import mediapipe as mp
 import numpy as np
 from flask import Flask, jsonify, render_template, request
-from keras.models import model_from_json
+from tflite_runtime.interpreter import Interpreter
 
 app = Flask(__name__)
 
 # ----------------------------------------------------
-# 1. Load Model, Weights, and Classes
+# 1. Load Ultra-Light TFLite Model
 # ----------------------------------------------------
 MODEL_DIR = "model/"
-with open(MODEL_DIR + "model-mp.json", "r") as f:
-    model = model_from_json(f.read())
-model.load_weights(MODEL_DIR + "model-mp.h5")
+
+# Initialize TFLite Interpreter
+interpreter = Interpreter(model_path=MODEL_DIR + "model-mp.tflite")
+interpreter.allocate_tensors()
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
 
 raw_classes = np.load(MODEL_DIR + "classes.npy", allow_pickle=True)
 classes = [str(c) for c in raw_classes]
@@ -135,8 +139,14 @@ def process_frame():
           coords.extend([x_val, lm.y, lm.z])
 
         # DNN Inference
-        reshaped_coords = np.array([coords])
-        predictions = model.predict(reshaped_coords, verbose=0)
+       # --- REPLACED INFERENCE LOGIC ---
+        # DNN Inference via TFLite
+        reshaped_coords = np.array([coords], dtype=np.float32)
+        
+        interpreter.set_tensor(input_details[0]['index'], reshaped_coords)
+        interpreter.invoke()
+        predictions = interpreter.get_tensor(output_details[0]['index'])
+        
         max_index = np.argmax(predictions[0])
 
         if predictions[0][max_index] > 0.85:
